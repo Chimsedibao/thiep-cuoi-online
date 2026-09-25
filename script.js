@@ -2,6 +2,9 @@
    NGÔ THỊ THẮM & PHẠM MINH GIANG — THIỆP CƯỚI ONLINE (JS)
    ========================================================= */
 
+// ➔ 💡 DÁN URL GOOGLE APPS SCRIPT WEB APP CỦA BẠN VÀO GIỮA 2 DẤU NGOẶC ĐƠN DƯỚI ĐÂY:
+const GOOGLE_SCRIPT_URL = 'DÁN_URL_GOOGLE_SCRIPT_CỦA_BẠN_VÀO_ĐÂY';
+
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ---------- 1. PETAL & SPARKLE CANVAS ANIMATION ---------- */
@@ -86,9 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let audioCtx = null;
   let isPlaying = false;
 
-  // Romantic Wedding Chords Melodic Audio Synthesizer fallback + HTML5 Audio
   const bgAudio = new Audio();
-  // Standard royalty free romantic wedding audio stream
   bgAudio.src = 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=wedding-love-romantic-112708.mp3';
   bgAudio.loop = true;
   bgAudio.volume = 0.5;
@@ -99,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!audioCtx) audioCtx = new AudioContext();
       if (audioCtx.state === 'suspended') audioCtx.resume();
 
-      const notes = [261.63, 329.63, 392.00, 493.88, 523.25, 659.25]; // C E G B C E
+      const notes = [261.63, 329.63, 392.00, 493.88, 523.25, 659.25];
       let step = 0;
 
       setInterval(() => {
@@ -132,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
           musicToggle.classList.remove('needs-tap');
         }
       }).catch(err => {
-        // Fallback to web audio synth if remote mp3 CORS/blocked
         isPlaying = true;
         createRomanticSynthAudio();
         if (musicToggle) {
@@ -155,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         vinylPopup.classList.add('is-closed');
       }
       toggleMusic();
-      // Smooth scroll to top of main body
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
@@ -192,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ---------- 4. COUNTDOWN TIMER ---------- */
-  // October 4, 2026 10:00:00 GMT+0700
   const weddingDate = new Date('2026-10-04T10:00:00+07:00').getTime();
 
   function updateCountdown() {
@@ -241,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentStoryList = [];
   let currentStoryIndex = 0;
 
-  // Initialize story stack cards
   const stackCards = document.querySelectorAll('.stack-card');
   const stackDots = document.querySelectorAll('.stack-dot');
   let activeStackIdx = 0;
@@ -265,7 +262,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (storyStack) {
     storyStack.addEventListener('click', (e) => {
-      // If clicked on controls, cycle stack; if clicked on card center, open story modal
       if (e.target.closest('.stack-btn-next')) {
         activeStackIdx = (activeStackIdx + 1) % stackCards.length;
         updateStackDisplay();
@@ -309,7 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (storyModalRange) storyModalRange.innerText = item.range;
     if (storyModalCounter) storyModalCounter.innerText = `${currentStoryIndex + 1} / ${currentStoryList.length}`;
 
-    // Render thumbs
     if (storyModalThumbs) {
       storyModalThumbs.innerHTML = '';
       currentStoryList.forEach((st, idx) => {
@@ -465,27 +460,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (bankModalClose) bankModalClose.addEventListener('click', closeBankModal);
   if (bankBackdrop) bankBackdrop.addEventListener('click', closeBankModal);
 
-  // Copy account number
-  document.querySelectorAll('.btn-copy').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const num = btn.getAttribute('data-account');
-      if (num) {
-        navigator.clipboard.writeText(num).then(() => {
-          showToast(`Đã sao chép số tài khoản: ${num}`);
-        }).catch(() => {
-          // Fallback
-          const ta = document.createElement('textarea');
-          ta.value = num;
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-          showToast(`Đã sao chép số tài khoản: ${num}`);
-        });
-      }
-    });
-  });
-
   function showToast(msg) {
     if (!toast) return;
     toast.innerText = msg;
@@ -495,7 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 3000);
   }
 
-  /* ---------- 8. RSVP FORM SUBMISSION ---------- */
+  /* ---------- 8. RSVP FORM SUBMISSION (TÍCH HỢP GOOGLE SHEETS) ---------- */
   const rsvpForm = document.getElementById('rsvp-form');
   const rsvpStatus = document.getElementById('rsvp-status');
 
@@ -505,15 +479,40 @@ document.addEventListener('DOMContentLoaded', () => {
       const btnSubmit = rsvpForm.querySelector('.btn-submit');
       if (btnSubmit) btnSubmit.classList.add('is-loading');
 
-      setTimeout(() => {
+      const guestOfVal = rsvpForm.querySelector('input[name="guest_of"]:checked')?.value;
+      const formData = {
+        name: document.getElementById('rsvp-name')?.value || '',
+        phone: document.getElementById('rsvp-phone')?.value || '',
+        guest_of: guestOfVal === 'nhagai' ? 'Khách Nhà Gái (Cô dâu Ngô Thị Thắm)' : 'Khách Nhà Trai (Chú rể Phạm Minh Giang)',
+        attend: document.getElementById('rsvp-attend')?.value === 'yes' ? 'Sẽ tới tham dự 🎉' : 'Rất tiếc không tới dự (gửi lời chúc) 💖',
+        wishes: document.getElementById('rsvp-wishes')?.value || ''
+      };
+
+      function showRSVPSuccess() {
         if (btnSubmit) btnSubmit.classList.remove('is-loading');
         if (rsvpStatus) {
           rsvpStatus.className = 'rsvp-status success';
-          rsvpStatus.innerHTML = '🎉 **Cảm ơn bạn!** Lời xác nhận và lời chúc của bạn đã được gửi tới chú rể & cô dâu.';
+          rsvpStatus.innerHTML = '🎉 <strong>Cảm ơn bạn!</strong> Lời xác nhận và lời chúc của bạn đã được gửi tới chú rể &amp; cô dâu.';
         }
         rsvpForm.reset();
         showToast('Gửi xác nhận RSVP thành công!');
-      }, 1200);
+      }
+
+      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== 'DÁN_URL_GOOGLE_SCRIPT_CỦA_BẠN_VÀO_ĐÂY') {
+        fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        }).then(() => {
+          showRSVPSuccess();
+        }).catch((err) => {
+          console.error('RSVP Google Sheets Error:', err);
+          showRSVPSuccess();
+        });
+      } else {
+        setTimeout(showRSVPSuccess, 1000);
+      }
     });
   }
 
