@@ -3,7 +3,7 @@
    ========================================================= */
 
 // ➔ 💡 DÁN URL GOOGLE APPS SCRIPT WEB APP CỦA BẠN VÀO GIỮA 2 DẤU NGOẶC ĐƠN DƯỚI ĐÂY:
-const GOOGLE_SCRIPT_URL = 'DÁN_URL_GOOGLE_SCRIPT_CỦA_BẠN_VÀO_ĐÂY';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvhvES5eLE4fynqXL7bntYpcGVCKzTKPKpxDkv40dtv5UsbD8nKe17XEk5NuyCTnVa/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
 
